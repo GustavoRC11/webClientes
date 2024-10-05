@@ -16,29 +16,42 @@ import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
 })
 export class CadastroClientesComponent {
 
+  mensagem: string = '';
+
   constructor(
 
-    private httpClient : HttpClient
+    private httpClient: HttpClient
 
-  ) {}
+  ) { }
 
   formulario = new FormGroup({
-    nome : new FormControl('',[Validators.required]),
-    cpf : new FormControl('',[Validators.required] ),
-    email : new FormControl('',[Validators.required]),
-    telefone : new FormControl('',[Validators.required])
+    nome: new FormControl('', [Validators.required, Validators.minLength(8)]),
+    cpf: new FormControl('', [Validators.required, Validators.pattern(/^\d{11}$/)]),
+    email: new FormControl('', [Validators.required, Validators.email]),
+    telefone: new FormControl('', [Validators.required, Validators.pattern(/^\d{11}$/)])
   });
 
-  cadastrarCliente() {
-    this.httpClient.post('http://localhost:8081/api/clientes', this.formulario.value, 
-      {responseType : 'text'})
-      .subscribe({
-      next: (data) => {
-        console.log(data);
-      }
-    })
-
-
+  get f() {
+    return this.formulario.controls;
   }
+
+  cadastrarCliente() {
+    this.httpClient.post('http://localhost:8081/api/clientes', this.formulario.value,
+      { responseType: 'text' })
+      .subscribe({
+        next: (data) => {
+
+          
+          this.mensagem = data;
+         
+
+          if (data.includes('sucesso')) {
+            //limpar os campos do formulário
+            this.formulario.reset();
+          }
+        }
+      });
+  }
+
 
 }
